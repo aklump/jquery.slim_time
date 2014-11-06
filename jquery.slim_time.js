@@ -17,6 +17,7 @@
 function SlimTime(element, options) {
   this.element = element;
   this.options = $.extend( {}, $.fn.slimTime.defaults, options) ;
+  this.options.default *= 1;
   this.init();
 }
 
@@ -51,7 +52,7 @@ SlimTime.prototype.validate = function ($element) {
   }
 
   return valid;
-}
+};
 
 /**
  * Tries to parse a time string into hour/min/suffix.
@@ -64,12 +65,12 @@ SlimTime.prototype.validate = function ($element) {
  *   - 2 string Suffix either am or pm.
  */
 SlimTime.prototype.parse = function (string) {
-
+  var parts;
   if (this.options.fuzzy) {
-    var parts = string.match(/(\d{1,2})\:(\d{2})(am|pm)?/);
+    parts = string.match(/(\d{1,2})\:(\d{2})(am|pm)?/);
   }
   else {
-    var parts = string.match(/^(\d{1,2})\:(\d{2})(am|pm)?$/);
+    parts = string.match(/^(\d{1,2})\:(\d{2})(am|pm)?$/);
   }
 
   if (!parts || typeof parts[1] === 'undefined' || typeof parts[2] === 'undefined') {
@@ -85,20 +86,20 @@ SlimTime.prototype.parse = function (string) {
   }
 
   // am/pm
-  if (this.options.default == 12) {
+  if (this.options.default === 12) {
     if (hour > 12) {
       hour -= 12;
       suffix = 'pm';
     }
-    else if (hour == 0) {
+    else if (hour === 0) {
       hour = 12;
       suffix = 'am';
     }
-  };
+  }
 
   // Military
-  if (this.options.default == 24) {
-    if (hour == 12 && suffix === 'am') {
+  if (this.options.default === 24) {
+    if (hour === 12 && suffix === 'am') {
       hour = 0;
     }
     else if (hour < 12 && suffix === 'pm') {
@@ -107,12 +108,12 @@ SlimTime.prototype.parse = function (string) {
     suffix = '';
   }
 
-  if (min == 0) {
+  if (min === 0) {
     min = '00';
-  };
+  }
 
   return [hour, min, suffix];
-}
+};
 
 /**
  * Joines a parsed time array into a string
@@ -125,7 +126,7 @@ SlimTime.prototype.parse = function (string) {
  */
 SlimTime.prototype.join = function (parsed) {
   return parsed ? parsed[0] + ':' + parsed[1] + parsed[2] : '';
-}
+};
 
 SlimTime.prototype.init = function () {
   var st = this;
@@ -137,7 +138,7 @@ SlimTime.prototype.init = function () {
 
   if (this.options.required) {
     $(this.element).addClass(this.options.cssPrefix + 'required');
-  };
+  }
 };
 
 $.fn.slimTime = function(options) {

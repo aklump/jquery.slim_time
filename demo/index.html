@@ -12,7 +12,10 @@
   (function($) {
     $('document').ready(function(){
       $('#time').slimTime();
-      $('#time2').slimTime({"required":true});
+      $('#time2').slimTime({
+        "required":true,
+        "default": 24
+      });
     });
   })(jQuery);
   </script>
@@ -52,18 +55,24 @@
       <li>Focus on the time box and enter 6:15 followed by tab; appends 'am'.</li>
       <li>Go back and enter 18:15 and hit tab, converts to 6:15pm</li>
       <li>Enter 6:15pm and hit tab; nothing changes.</li>
-      <li>Enter 'elephant' and hit tab; instant validation failure calls custom callback.</li>
+      <li>Enter <em>elephant</em> and hit tab; instant validation failure calls custom callback.</li>
+      <li>Try entering <em>it is 4:55pm now</em> (the whole phrase).  This "fuzzy" behavior can be disabled in options.</li>
     </ol>
-    <hr />
     
-    <!-- Add your markup for the example here -->
-    <form action="">
-      <p><label for="time">What time?</label>
-            <input type="text" name="time" id="time" /></p>
+    <p><label for="time">What time?</label>
+          <input type="text" name="time" id="time" />
+          <button>Ok</button></p>
 
-      <p><label for="time">What time? (required field) *</label>
-            <input type="text" name="time2" id="time2" /></p>
-    </form>
+    <h3>24-hour time</h3>
+    <ol>
+      <li>Repeat the steps above; this box has been configured as required and using 24-hour time.</li>
+      <li>Leave it blank and then tab out of it: because it's been required, it will show an error if nothing is entered.</li>
+
+    </ol>
+
+    <p><label for="time">What time? (required field) *</label>
+          <input type="text" name="time2" id="time2" />
+          <button>Ok</button></p>
 
     <hr />
     <p class="text-muted"><strong>jquery.slim_time</strong> is brought to you by <a href="http://www.intheloftstudios.com">In the Loft Studios</a></p>
