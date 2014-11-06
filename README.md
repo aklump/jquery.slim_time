@@ -1,0 +1,1 @@
+Please open `demo/index.html` to see this plugin in action.
