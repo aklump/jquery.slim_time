@@ -1,5 +1,15 @@
 // Most tests should be mimicked in ../phpunit/SlimTimeTest.php
 
+
+QUnit.test("Correctly handle 12:07", function(assert) {
+  var val = $('#time')
+  .slimTime()
+  .val('12:07')
+  .blur()
+  .val();
+  assert.strictEqual('12:07am', val);    
+});
+
 QUnit.test("Expands integar to full time", function(assert) {
   var val = $('#time')
   .slimTime()
