@@ -12,6 +12,7 @@ class SlimTimeTest extends \PHPUnit_Framework_TestCase {
  
   public function testIntegarExpansion() {
     $this->assertSlimTimePass('6:00am', 6);
+    $this->assertSlimTimePass('12:07am', '12:07');
   }
 
   public function testFailsOutOfRangeMinute() {

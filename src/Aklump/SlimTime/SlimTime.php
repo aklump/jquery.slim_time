@@ -111,6 +111,9 @@ class SlimTime {
     if ($min === 0) {
       $min = '00';
     }
+    elseif ($min < 10) {
+      $min = "0{$min}";
+    }
 
     $this->parsed = array($hour, $min, $suffix);
     

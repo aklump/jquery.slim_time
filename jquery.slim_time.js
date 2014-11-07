@@ -117,6 +117,9 @@ SlimTime.prototype.parse = function (string) {
   if (min === 0) {
     min = '00';
   }
+  else if (min < 10) {
+    min = '0' + min;
+  }
 
   return [hour, min, suffix];
 };
