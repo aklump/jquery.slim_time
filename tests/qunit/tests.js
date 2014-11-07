@@ -1,3 +1,34 @@
+// Most tests should be mimicked in ../phpunit/SlimTimeTest.php
+
+QUnit.test("Expands integar to full time", function(assert) {
+  var val = $('#time')
+  .slimTime()
+  .val('6')
+  .blur()
+  .val();
+  assert.strictEqual('6:00am', val);  
+});
+
+QUnit.test("Fails an out of range minute", function(assert) {
+  var val = $('#time')
+  .slimTime({"assume":"pm","fuzzy":false})
+  .val('9:63am')
+  .blur()
+  .val();
+  assert.strictEqual('9:63am', val);
+  assert.ok($('#time').hasClass('slim-time-error'));  
+});
+
+QUnit.test("Fails an out of range hour", function(assert) {
+  var val = $('#time')
+  .slimTime({"assume":"pm","fuzzy":false})
+  .val('34:00am')
+  .blur()
+  .val();
+  assert.strictEqual('34:00am', val);
+  assert.ok($('#time').hasClass('slim-time-error'));  
+});
+
 QUnit.test("Does not extract/adds error class from a sentence when fuzzy is true.", function(assert) {
   var val = $('#time')
   .slimTime({"assume":"pm","fuzzy":false})

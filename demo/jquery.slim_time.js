@@ -7,7 +7,7 @@
  * Copyright 2013, Aaron Klump
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
- * Date: Thu Nov  6 14:53:35 PST 2014
+ * Date: Fri Nov  7 09:38:13 PST 2014
  *
  * @license
  */
@@ -67,14 +67,18 @@ SlimTime.prototype.validate = function ($element) {
 SlimTime.prototype.parse = function (string) {
   var parts;
   if (this.options.fuzzy) {
-    parts = string.match(/(\d{1,2})\:(\d{2})(am|pm)?/);
+    parts = string.match(/(\d{1,2})\:?(\d{2})?(am|pm)?/);
   }
   else {
-    parts = string.match(/^(\d{1,2})\:(\d{2})(am|pm)?$/);
+    parts = string.match(/^(\d{1,2})\:?(\d{2})?(am|pm)?$/);
   }
 
-  if (!parts || typeof parts[1] === 'undefined' || typeof parts[2] === 'undefined') {
+  if (!parts || typeof parts[1] === 'undefined') {
     return false;
+  }
+
+  if (typeof parts[2] === 'undefined') {
+    parts[2] = 0;
   }
 
   var hour = parts[1] * 1;
@@ -108,9 +112,13 @@ SlimTime.prototype.parse = function (string) {
     suffix = '';
   }
 
-  if (min === 0) {
+  if (min === 0 || typeof min === 'undefined') {
     min = '00';
   }
+
+  if (hour > this.options.default || min > 59) {
+    return false;
+  }  
 
   return [hour, min, suffix];
 };
