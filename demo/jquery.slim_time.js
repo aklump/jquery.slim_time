@@ -1,13 +1,13 @@
 /**
- * Slim Time jQuery JavaScript Plugin v1.1
+ * Slim Time jQuery JavaScript Plugin v1.2
  * http://www.intheloftstudios.com/packages/jquery/jquery.slim_time
  *
- * A minimal jquery time widget for textfields.
+ * A minimal jquery time widget for textfields with server-side support.
  *
  * Copyright 2013, Aaron Klump
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
- * Date: Thu Nov  6 14:53:35 PST 2014
+ * Date: Fri Nov  7 11:54:35 PST 2014
  *
  * @license
  */
@@ -65,25 +65,31 @@ SlimTime.prototype.validate = function ($element) {
  *   - 2 string Suffix either am or pm.
  */
 SlimTime.prototype.parse = function (string) {
-  var parts;
-  if (this.options.fuzzy) {
-    parts = string.match(/(\d{1,2})\:(\d{2})(am|pm)?/);
-  }
-  else {
-    parts = string.match(/^(\d{1,2})\:(\d{2})(am|pm)?$/);
+
+  var parts = string.match(/(\d{1,2})\:?(\d{2})?(am|pm)?/);
+  if (!this.options.fuzzy) {
+    parts = string.match(/^(\d{1,2})\:?(\d{2})?(am|pm)?$/);
   }
 
-  if (!parts || typeof parts[1] === 'undefined' || typeof parts[2] === 'undefined') {
+  if (!parts || typeof parts[1] === 'undefined') {
     return false;
   }
 
-  var hour = parts[1] * 1;
-  var min = parts[2] * 1;
-  var suffix = this.options.assume;
+  if (typeof parts[2] === 'undefined') {
+    parts[2] = 0;
+  }
+
+  var hour    = parts[1] * 1;
+  var min     = parts[2] * 1;
+  var suffix  = this.options.assume;
 
   if (typeof parts[3] !== 'undefined') {
     suffix = parts[3];
   }
+
+  if (hour > 23 || min > 59) {
+    return false;
+  }  
 
   // am/pm
   if (this.options.default === 12) {
@@ -116,7 +122,7 @@ SlimTime.prototype.parse = function (string) {
 };
 
 /**
- * Joines a parsed time array into a string
+ * Joins a parsed time array into a string.
  *
  * @param  {array} parsed
  *
@@ -125,7 +131,7 @@ SlimTime.prototype.parse = function (string) {
  * @see  SlimTime.prototype.parse().
  */
 SlimTime.prototype.join = function (parsed) {
-  return parsed ? parsed[0] + ':' + parsed[1] + parsed[2] : '';
+  return parsed && parsed.length === 3 ? parsed[0] + ':' + parsed[1] + parsed[2] : '';
 };
 
 SlimTime.prototype.init = function () {
@@ -180,6 +186,6 @@ $.fn.slimTime.defaults = {
   "cssPrefix"         : 'slim-time-'  
 };
 
-$.fn.slimTime.version = function() { return '1.1'; };
+$.fn.slimTime.version = function() { return '1.2'; };
 
 })(jQuery, window, document);

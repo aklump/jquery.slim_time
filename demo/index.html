@@ -52,9 +52,11 @@
     
     <h2>Demo Instructions</h2>
     <ol>
-      <li>Focus on the time box and enter <em>6:15</em> followed by tab; appends 'am'.</li>
+      <li>Focus on the time box and enter <em>6:15</em> followed by tab; appends 'am'. This can be configured to assume am or pm.</li>
       <li>Go back and enter <em>18:15</em> and hit tab, converts to 6:15pm</li>
       <li>Enter <em>6:15pm</em> and hit tab; nothing changes.</li>
+      <li>Enter <em>9</em> and hit tab; expands to 9:00am.</li>
+      <li>Enter <em>99:78pm</em> and hit tab; throws an error.</li>
       <li>Enter <em>elephant</em> and hit tab; instant validation failure calls custom callback.</li>
       <li>Try entering <em>it is 4:55pm now</em> (the whole phrase).  This "fuzzy" behavior can be disabled in options.</li>
     </ol>
