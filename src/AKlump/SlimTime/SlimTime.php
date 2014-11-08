@@ -60,7 +60,7 @@ class SlimTime {
     $this->original = $string;
     $this->parsed = array();
 
-    $regex = '(\d{1,2})\:?(\d{2})?(am|pm)?';
+    $regex = '(\d{1,2})\:?(\d{2})?(am|pm|a|p)?';
     if (!$this->options->fuzzy) {
       $regex = "^{$regex}$";
     }
@@ -79,6 +79,9 @@ class SlimTime {
 
     if (isset($parts[3])) {
       $suffix = $parts[3];
+      if ($suffix === 'a' || $suffix === 'p') {
+        $suffix .='m';
+      }      
     }
 
     if ($hour > 23 || $min > 59) {
@@ -99,7 +102,7 @@ class SlimTime {
 
     // Military
     if ($this->options->default === 24) {
-      if ($hour === 12 && $suffix === 'am') {
+      if ($hour === 12 && $suffix === 'am' && isset($parts[3])) {
         $hour = 0;
       }
       else if ($hour < 12 && $suffix === 'pm') {
