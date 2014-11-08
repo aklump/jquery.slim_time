@@ -66,9 +66,9 @@ SlimTime.prototype.validate = function ($element) {
  */
 SlimTime.prototype.parse = function (string) {
 
-  var parts = string.match(/(\d{1,2})\:?(\d{2})?(am|pm)?/);
+  var parts = string.match(/(\d{1,2})\:?(\d{2})?(am|pm|a|p)?/);
   if (!this.options.fuzzy) {
-    parts = string.match(/^(\d{1,2})\:?(\d{2})?(am|pm)?$/);
+    parts = string.match(/^(\d{1,2})\:?(\d{2})?(am|pm|a|p)?$/);
   }
 
   if (!parts || typeof parts[1] === 'undefined') {
@@ -85,6 +85,9 @@ SlimTime.prototype.parse = function (string) {
 
   if (typeof parts[3] !== 'undefined') {
     suffix = parts[3];
+    if (suffix === 'a' || suffix === 'p') {
+      suffix += 'm';
+    }
   }
 
   if (hour > 23 || min > 59) {
@@ -105,7 +108,7 @@ SlimTime.prototype.parse = function (string) {
 
   // Military
   if (this.options.default === 24) {
-    if (hour === 12 && suffix === 'am') {
+    if (hour === 12 && suffix === 'am' && typeof parts[3] !== 'undefined') {
       hour = 0;
     }
     else if (hour < 12 && suffix === 'pm') {

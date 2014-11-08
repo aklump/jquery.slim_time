@@ -9,10 +9,20 @@ namespace AKlump\SlimTime;
 require_once dirname(__FILE__) . '/../../vendor/autoload.php';
 
 class SlimTimeTest extends \PHPUnit_Framework_TestCase {
- 
-  public function testIntegarExpansion() {
+
+  public function testIntegarExpansion12Hour() {
+    $this->assertSlimTimePass('6:00pm', '6p');
     $this->assertSlimTimePass('6:00am', 6);
     $this->assertSlimTimePass('12:07am', '12:07');
+    $this->assertSlimTimePass('6:00am', '6a');
+  }
+
+  public function testIntegarExpansion24Hour() {
+    $obj = new SlimTime(array('default' => 24));
+    $this->assertSlimTimePass('06:00', 6, $obj);
+    $this->assertSlimTimePass('12:07', '12:07', $obj);
+    $this->assertSlimTimePass('06:00', '6a', $obj);
+    $this->assertSlimTimePass('18:00', '6p', $obj);
   }
 
   public function testFailsOutOfRangeMinute() {

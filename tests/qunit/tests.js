@@ -1,4 +1,58 @@
 // Most tests should be mimicked in ../phpunit/SlimTimeTest.php
+QUnit.test("Passing 6p works in 12 hours", function(assert) {
+  var val = $('#time')
+  .slimTime()
+  .val('6p')
+  .blur()
+  .val();
+  assert.strictEqual(val, '6:00pm');  
+});
+
+QUnit.test("Pasing 6a works in 12 hours", function(assert) {
+  var val = $('#time')
+  .slimTime()
+  .val('6a')
+  .blur()
+  .val();
+  assert.strictEqual(val, '6:00am');  
+});
+
+QUnit.test("Passing 12:07 in 12 returns 12:07pm", function(assert) {
+  var val = $('#time')
+  .slimTime()
+  .val('12:07')
+  .blur()
+  .val();
+  assert.strictEqual(val, '12:07am');  
+});
+
+QUnit.test("Passing 6p works in 24 hours", function(assert) {
+  var val = $('#time')
+  .slimTime({"default":24})
+  .val('6p')
+  .blur()
+  .val();
+  assert.strictEqual(val, '18:00');  
+});
+
+QUnit.test("Pasing 6a works in 24 hours", function(assert) {
+  var val = $('#time')
+  .slimTime({"default":24})
+  .val('6a')
+  .blur()
+  .val();
+  assert.strictEqual(val, '06:00');  
+});
+
+QUnit.test("Passing 12:07 in 24 returns 12:07", function(assert) {
+  var val = $('#time')
+  .slimTime({"default":24})
+  .val('12:07')
+  .blur()
+  .val();
+  assert.strictEqual(val, '12:07');  
+});
+
 QUnit.test("Prepend the 0 to hours in 24 hour time < 12", function(assert) {
   var val = $('#time')
   .slimTime({"default":24})

@@ -1,1 +1,3 @@
 config.codekit
+demo/jquery.slim_time.min.js
+tests/qunit/tests.min.js
