@@ -106,6 +106,10 @@ class SlimTime {
         $hour += 12;
       }
       $suffix = '';
+
+      if ($hour < 10) {
+        $hour = "0{$hour}";
+      }
     }
 
     if ($min === 0) {

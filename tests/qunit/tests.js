@@ -1,5 +1,12 @@
 // Most tests should be mimicked in ../phpunit/SlimTimeTest.php
-
+QUnit.test("Prepend the 0 to hours in 24 hour time < 12", function(assert) {
+  var val = $('#time')
+  .slimTime({"default":24})
+  .val('7')
+  .blur()
+  .val();
+  assert.strictEqual(val, '07:00');  
+});
 
 QUnit.test("Correctly handle 12:07", function(assert) {
   var val = $('#time')
@@ -146,7 +153,7 @@ QUnit.test("Passthru midnight in military time", function(assert) {
   .val('0:00')
   .blur()
   .val();
-  assert.strictEqual(val, '0:00');
+  assert.strictEqual(val, '00:00');
 });
 
 QUnit.test("Converts midnight in 12 hour time", function(assert) {
@@ -164,7 +171,7 @@ QUnit.test("Converts midnight in military time", function(assert) {
   .val('12:00am')
   .blur()
   .val();
-  assert.strictEqual(val, '0:00');
+  assert.strictEqual(val, '00:00');
 });
 
 QUnit.test("Converts to military time when options.default = 24: > 12", function(assert) {
@@ -182,7 +189,7 @@ QUnit.test("Converts to military time when options.default = 24: < 12", function
   .val('6:15am')
   .blur()
   .val();
-  assert.strictEqual(val, '6:15');
+  assert.strictEqual(val, '06:15');
 });
 
 QUnit.test("Uses options.assume for 6: default", function(assert) {
