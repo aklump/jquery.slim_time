@@ -38,7 +38,7 @@ class SlimTimeTest extends \PHPUnit_Framework_TestCase {
 
   public function testPassThruMidnightIn24Hour() {
     $obj = new SlimTime(array('default' => 24));
-    $this->assertSlimTimePass('0:00', '0:00', $obj);
+    $this->assertSlimTimePass('00:00', '0:00', $obj);
   }
 
   public function testConvertsMidnightIn12Hour() {
@@ -52,7 +52,8 @@ class SlimTimeTest extends \PHPUnit_Framework_TestCase {
   public function testConvertsTo24HourDefaultIs24() {
     $obj = new SlimTime(array('default' => 24));
     $this->assertSlimTimePass('18:15', '6:15pm', $obj);
-    $this->assertSlimTimePass('6:15', '6:15am', $obj);
+    $this->assertSlimTimePass('06:15', '6:15am', $obj);
+    $this->assertSlimTimePass('07:00', '7', $obj);
   }
 
   public function testAppendsSuffixUsingDefaults() {
