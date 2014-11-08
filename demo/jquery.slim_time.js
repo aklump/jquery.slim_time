@@ -1,5 +1,5 @@
 /**
- * Slim Time jQuery JavaScript Plugin v1.2.5
+ * Slim Time jQuery JavaScript Plugin v1.2.6
  * http://www.intheloftstudios.com/packages/jquery/jquery.slim_time
  *
  * A minimal jquery time widget for textfields with server-side support.
@@ -7,7 +7,7 @@
  * Copyright 2013, Aaron Klump
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
- * Date: Fri Nov  7 18:01:55 PST 2014
+ * Date: Sat Nov  8 14:30:02 PST 2014
  *
  * @license
  */
@@ -66,9 +66,9 @@ SlimTime.prototype.validate = function ($element) {
  */
 SlimTime.prototype.parse = function (string) {
 
-  var parts = string.match(/(\d{1,2})\:?(\d{2})?(am|pm)?/);
+  var parts = string.match(/(\d{1,2})\:?(\d{2})?(am|pm|a|p)?/);
   if (!this.options.fuzzy) {
-    parts = string.match(/^(\d{1,2})\:?(\d{2})?(am|pm)?$/);
+    parts = string.match(/^(\d{1,2})\:?(\d{2})?(am|pm|a|p)?$/);
   }
 
   if (!parts || typeof parts[1] === 'undefined') {
@@ -85,6 +85,9 @@ SlimTime.prototype.parse = function (string) {
 
   if (typeof parts[3] !== 'undefined') {
     suffix = parts[3];
+    if (suffix === 'a' || suffix === 'p') {
+      suffix += 'm';
+    }
   }
 
   if (hour > 23 || min > 59) {
@@ -105,7 +108,7 @@ SlimTime.prototype.parse = function (string) {
 
   // Military
   if (this.options.default === 24) {
-    if (hour === 12 && suffix === 'am') {
+    if (hour === 12 && suffix === 'am' && typeof parts[3] !== 'undefined') {
       hour = 0;
     }
     else if (hour < 12 && suffix === 'pm') {
@@ -193,6 +196,6 @@ $.fn.slimTime.defaults = {
   "cssPrefix"         : 'slim-time-'  
 };
 
-$.fn.slimTime.version = function() { return '1.2.5'; };
+$.fn.slimTime.version = function() { return '1.2.6'; };
 
 })(jQuery, window, document);
