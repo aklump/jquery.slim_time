@@ -7,7 +7,7 @@
  * Copyright 2013, Aaron Klump
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
- * Date: Sat Nov  8 14:30:02 PST 2014
+ * Date: Tue Nov 11 13:13:44 PST 2014
  *
  * @license
  */
@@ -65,14 +65,27 @@ SlimTime.prototype.validate = function ($element) {
  *   - 2 string Suffix either am or pm.
  */
 SlimTime.prototype.parse = function (string) {
-
-  var parts = string.match(/(\d{1,2})\:?(\d{2})?(am|pm|a|p)?/);
-  if (!this.options.fuzzy) {
-    parts = string.match(/^(\d{1,2})\:?(\d{2})?(am|pm|a|p)?$/);
+  var parts;
+  if (this.options.colon === 'required') {
+    parts = string.match(/(?:(\d{1,2})\:(\d{2}?)|(\d+))(am|pm|a|p)?/);
+    if (!this.options.fuzzy) {
+      parts = string.match(/^(?:(\d{1,2})\:(\d{2}?)|(\d+))(am|pm|a|p)?$/);
+    }
+  }
+  else {
+    parts = string.match(/(?:(\d{1,2})\:?(\d{2}?)|(\d+))(am|pm|a|p)?/);
+    if (!this.options.fuzzy) {
+      parts = string.match(/^(?:(\d{1,2})\:?(\d{2}?)|(\d+))(am|pm|a|p)?$/);
+    }
   }
 
-  if (!parts || typeof parts[1] === 'undefined') {
+  if (!parts || parts[3] > 24 || (typeof parts[1] === 'undefined' && typeof parts[3] === 'undefined')) {
     return false;
+  }
+
+  // Pull single hour in the correct spot.
+  if (typeof parts[1] === 'undefined') {
+    parts[1] = parts[3];
   }
 
   if (typeof parts[2] === 'undefined') {
@@ -83,8 +96,8 @@ SlimTime.prototype.parse = function (string) {
   var min     = parts[2] * 1;
   var suffix  = this.options.assume;
 
-  if (typeof parts[3] !== 'undefined') {
-    suffix = parts[3];
+  if (typeof parts[4] !== 'undefined') {
+    suffix = parts[4];
     if (suffix === 'a' || suffix === 'p') {
       suffix += 'm';
     }
@@ -108,7 +121,7 @@ SlimTime.prototype.parse = function (string) {
 
   // Military
   if (this.options.default === 24) {
-    if (hour === 12 && suffix === 'am' && typeof parts[3] !== 'undefined') {
+    if (hour === 12 && suffix === 'am' && typeof parts[4] !== 'undefined') {
       hour = 0;
     }
     else if (hour < 12 && suffix === 'pm') {
@@ -141,7 +154,8 @@ SlimTime.prototype.parse = function (string) {
  * @see  SlimTime.prototype.parse().
  */
 SlimTime.prototype.join = function (parsed) {
-  return parsed && parsed.length === 3 ? parsed[0] + ':' + parsed[1] + parsed[2] : '';
+  var colon = this.options.colon === 'none' ? '' : ':';
+  return parsed && parsed.length === 3 ? parsed[0] + colon + parsed[1] + parsed[2] : '';
 };
 
 SlimTime.prototype.init = function () {
@@ -178,7 +192,13 @@ $.fn.slimTime.defaults = {
   "default"   : 12,
 
   // When suffix is missing and time is < 13 assume the following.
-  "assume"    : 'am',
+  "assume"    : "am",
+
+  // Define the colon handling: optional, none, required.  When colon is 
+  // required, 615 is not a valid input, when it is optional 615 is valid and
+  // the output will be 6:15, when it is none, 615 is valid and the output
+  // is 615.
+  "colon"     : "optional",
 
   // Callback for when the time passes validation.
   "pass"      : function(entered, parsed, $element, slimTime) {
@@ -193,7 +213,7 @@ $.fn.slimTime.defaults = {
   },
   
   // A prefix for all css classes
-  "cssPrefix"         : 'slim-time-'  
+  "cssPrefix"         : "slim-time-"
 };
 
 $.fn.slimTime.version = function() { return '1.2.6'; };

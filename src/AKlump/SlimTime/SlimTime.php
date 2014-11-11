@@ -51,25 +51,52 @@ class SlimTime {
       'fuzzy' => TRUE,
       'required' => FALSE,
       'default' => 12,
-      'assume' => 'am',      
+      'assume' => 'am',
+      'colon' => 'optional',
     );
     $this->options = (object) $this->options;
+  }
+
+  /**
+   * A modified isset function to help filter empty non 0 values.
+   *
+   * @param  mixed $value
+   *
+   * @return bool
+   */
+  public static function undefined($value) {
+    return empty($value) && !is_numeric($value);
   }
 
   public function parse($string) {
     $this->original = $string;
     $this->parsed = array();
 
-    $regex = '(\d{1,2})\:?(\d{2})?(am|pm|a|p)?';
-    if (!$this->options->fuzzy) {
-      $regex = "^{$regex}$";
+    if ($this->options->colon === 'required') {
+      $regex = '(?:(\d{1,2})\:(\d{2}?)|(\d+))(am|pm|a|p)?';
+      if (!$this->options->fuzzy) {
+        $regex = "^{$regex}$";
+      }
+    }
+    else {
+      $regex = '(?:(\d{1,2})\:?(\d{2}?)|(\d+))(am|pm|a|p)?';
+      if (!$this->options->fuzzy) {
+        $regex = "^{$regex}$";
+      }      
     }
 
-    if (!preg_match("/{$regex}/", $string, $parts) || !isset($parts[1])) {
+    if (!preg_match("/{$regex}/", $string, $parts)
+      || (isset($parts[3]) && $parts[3] > 24)
+      || (self::undefined($parts[1]) && self::undefined($parts[3]))) {
       return $this;
     }
 
-    if (!isset($parts[2])) {
+    // Pull single hour in the correct spot.
+    if (self::undefined($parts[1])) {
+      $parts[1] = $parts[3];
+    }    
+
+    if (self::undefined($parts[2])) {
       $parts[2] = 0;
     }
 
@@ -77,8 +104,8 @@ class SlimTime {
     $min    = $parts[2] * 1;
     $suffix = $this->options->assume;
 
-    if (isset($parts[3])) {
-      $suffix = $parts[3];
+    if (isset($parts[4])) {
+      $suffix = $parts[4];
       if ($suffix === 'a' || $suffix === 'p') {
         $suffix .='m';
       }      
@@ -102,7 +129,7 @@ class SlimTime {
 
     // Military
     if ($this->options->default === 24) {
-      if ($hour === 12 && $suffix === 'am' && isset($parts[3])) {
+      if ($hour === 12 && $suffix === 'am' && isset($parts[4])) {
         $hour = 0;
       }
       else if ($hour < 12 && $suffix === 'pm') {
@@ -123,7 +150,7 @@ class SlimTime {
     }
 
     $this->parsed = array($hour, $min, $suffix);
-    
+
     return $this;
   }
 
@@ -142,6 +169,7 @@ class SlimTime {
    * @return string
    */
   public function join() {
-    return count($this->parsed) === 3 ? $this->parsed[0] . ':' . $this->parsed[1] . $this->parsed[2] : $this->original;
+    $colon = $this->options->colon === 'none' ? '' : ':';
+    return count($this->parsed) === 3 ? $this->parsed[0] . $colon . $this->parsed[1] . $this->parsed[2] : $this->original;
   }
 }
