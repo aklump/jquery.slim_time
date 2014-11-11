@@ -10,6 +10,43 @@ require_once dirname(__FILE__) . '/../../vendor/autoload.php';
 
 class SlimTimeTest extends \PHPUnit_Framework_TestCase {
 
+  public function testIntegarExpansion12HourDELETE() {
+    $this->assertSlimTimePass('6:00pm', '6p');
+    $this->assertSlimTimePass('6:00am', 6);
+    $this->assertSlimTimePass('12:07am', '12:07');
+    $this->assertSlimTimePass('6:00am', '6a');
+  }
+
+
+  public function testIntegarExpansionColonOptional() {
+    $this->assertSlimTimePass('6:15am', '615');
+    $this->assertSlimTimePass('6:15pm', '1815');
+    $this->assertSlimTimePass('6:15am', '6:15');
+    $this->assertSlimTimePass('6:15pm', '18:15');
+
+    $obj = new SlimTime(array('colon' => 'optional'));
+    $this->assertSlimTimePass('6:15am', '615', $obj);
+    $this->assertSlimTimePass('6:15pm', '1815', $obj);
+    $this->assertSlimTimePass('6:15am', '6:15', $obj);
+    $this->assertSlimTimePass('6:15pm', '18:15', $obj);
+  }
+
+  public function testIntegarExpansionColonNone() {
+    $obj = new SlimTime(array('colon' => 'none'));
+    $this->assertSlimTimePass('615am', '615', $obj);
+    $this->assertSlimTimePass('615pm', '1815', $obj);
+    $this->assertSlimTimePass('615am', '6:15', $obj);
+    $this->assertSlimTimePass('615pm', '18:15', $obj);
+  }
+
+  public function testIntegarExpansionColonRequired() {
+    $obj = new SlimTime(array('colon' => 'required'));
+    $this->assertSlimTimeFail('615', $obj);
+    $this->assertSlimTimeFail('1815', $obj);
+    $this->assertSlimTimePass('6:15am', '6:15', $obj);
+    $this->assertSlimTimePass('6:15pm', '18:15', $obj);
+  }
+
   public function testIntegarExpansion12Hour() {
     $this->assertSlimTimePass('6:00pm', '6p');
     $this->assertSlimTimePass('6:00am', 6);
@@ -92,6 +129,14 @@ class SlimTimeTest extends \PHPUnit_Framework_TestCase {
     $this->assertFalse($obj->validate(''));
   }
 
+  public function testUndefined() {
+    $this->assertFalse(SlimTime::undefined('6'));
+    $this->assertFalse(SlimTime::undefined(6));
+    $this->assertFalse(SlimTime::undefined(0));
+    $this->assertFalse(SlimTime::undefined('0'));
+    $this->assertTrue(SlimTime::undefined(''));
+    $this->assertTrue(SlimTime::undefined(NULL));
+  }
 
   //
   // Custom assertions below here

@@ -1,28 +1,99 @@
 // Most tests should be mimicked in ../phpunit/SlimTimeTest.php
+
+//
+// Colon Optional
+// 
+QUnit.test("Pass for colon optional: 615", function(assert) {
+  var val = $('#time').slimTime().val('615').blur().val();
+  assert.strictEqual(val, '6:15am');
+});
+QUnit.test("Pass for colon optional: 1815", function(assert) {
+  var val = $('#time').slimTime().val('1815').blur().val();
+  assert.strictEqual(val, '6:15pm');
+});
+QUnit.test("Pass for colon optional: 6:15", function(assert) {
+  var val = $('#time').slimTime().val('6:15').blur().val();
+  assert.strictEqual(val, '6:15am');
+});
+QUnit.test("Pass for colon optional: 18:15", function(assert) {
+  var val = $('#time').slimTime().val('18:15').blur().val();
+  assert.strictEqual(val, '6:15pm');
+});
+QUnit.test("Pass for colon optional: 615", function(assert) {
+  var val = $('#time').slimTime({"colon":"optional"}).val('615').blur().val();
+  assert.strictEqual(val, '6:15am');
+});
+QUnit.test("Pass for colon optional: 1815", function(assert) {
+  var val = $('#time').slimTime({"colon":"optional"}).val('1815').blur().val();
+  assert.strictEqual(val, '6:15pm');
+});
+QUnit.test("Pass for colon optional: 6:15", function(assert) {
+  var val = $('#time').slimTime({"colon":"optional"}).val('6:15').blur().val();
+  assert.strictEqual(val, '6:15am');
+});
+QUnit.test("Pass for colon optional: 18:15", function(assert) {
+  var val = $('#time').slimTime({"colon":"optional"}).val('18:15').blur().val();
+  assert.strictEqual(val, '6:15pm');
+});
+
+//
+// Colon None
+// 
+QUnit.test("Pass for colon none: 615", function(assert) {
+  var val = $('#time').slimTime({"colon":"none"}).val('615').blur().val();
+  assert.strictEqual(val, '615am');
+});
+QUnit.test("Pass for colon none: 1815", function(assert) {
+  var val = $('#time').slimTime({"colon":"none"}).val('1815').blur().val();
+  assert.strictEqual(val, '615pm');
+});
+QUnit.test("Pass for colon none: 6:15", function(assert) {
+  var val = $('#time').slimTime({"colon":"none"}).val('6:15').blur().val();
+  assert.strictEqual(val, '615am');
+});
+QUnit.test("Pass for colon none: 18:15", function(assert) {
+  var val = $('#time').slimTime({"colon":"none"}).val('18:15').blur().val();
+  assert.strictEqual(val, '615pm');
+});
+
+//
+// Colon required
+// 
+QUnit.test("Fail for colon required:615", function(assert) {
+  var val = $('#time').slimTime({"colon":"required"}).val('615').blur().val();
+  assert.ok($('#time').hasClass('slim-time-error'));
+  assert.strictEqual(val, '615');
+});
+QUnit.test("Fail for colon required:1815", function(assert) {
+  var val = $('#time').slimTime({"colon":"required"}).val('1815').blur().val();
+  assert.ok($('#time').hasClass('slim-time-error'));
+  assert.strictEqual(val, '1815');
+});
+QUnit.test("Pass for colon required:6:15", function(assert) {
+  var val = $('#time').slimTime({"colon":"required"}).val('6:15').blur().val();
+  assert.strictEqual(val, '6:15am');
+});
+QUnit.test("Pass for colon required:18:15", function(assert) {
+  var val = $('#time').slimTime({"colon":"required"}).val('18:15').blur().val();
+  assert.strictEqual(val, '6:15pm');
+});
+
+//
+//
+//
+
 QUnit.test("Passing 6p works in 12 hours", function(assert) {
-  var val = $('#time')
-  .slimTime()
-  .val('6p')
-  .blur()
-  .val();
+  var val = $('#time').slimTime().val('6p').blur().val();
   assert.strictEqual(val, '6:00pm');  
 });
 
 QUnit.test("Pasing 6a works in 12 hours", function(assert) {
-  var val = $('#time')
-  .slimTime()
-  .val('6a')
-  .blur()
-  .val();
+  var val = $('#time').slimTime().val('6a').blur().val();
   assert.strictEqual(val, '6:00am');  
 });
 
 QUnit.test("Passing 12:07 in 12 returns 12:07pm", function(assert) {
-  var val = $('#time')
-  .slimTime()
-  .val('12:07')
-  .blur()
-  .val();
+  var val = $('#time').slimTime().val('12:07').blur().val();
   assert.strictEqual(val, '12:07am');  
 });
 
