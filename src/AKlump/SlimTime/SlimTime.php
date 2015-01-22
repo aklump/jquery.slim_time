@@ -172,4 +172,67 @@ class SlimTime {
     $colon = $this->options->colon === 'none' ? '' : ':';
     return count($this->parsed) === 3 ? $this->parsed[0] . $colon . $this->parsed[1] . $this->parsed[2] : $this->original;
   }
+
+  /**
+   * Standardizes the time format.
+   *
+   * @method standardize
+   *
+   * @param  string $time
+   *   A string representation of time.
+   * @param  string|DateTimeZone $timezone
+   *   Defaults to 'UTC' when not provided. If a string, it must be a valid
+   *   timezone name to use when constructing a \DateTimeZone object.
+   *
+   * @return string
+   *   A string representation of the time in the indicated standard.
+   *   - ISO8601 HH:MM:SSO, e.g., 07:45:15-0800.
+   */
+  public function standardize($time, $timezone = 'UTC') {
+    if (is_string($timezone)) {
+      $timezone = new \DateTimeZone($timezone);
+    }
+    $time = $this->parse($time)->join();
+    $time = new \DateTime($time, $timezone);
+
+    return $time->format('H:i:sO');
+  }
+
+  /**
+   * Localizes a standardized time.
+   *
+   * The standardized time does not contain a date value, HOWEVER if you need
+   * to localize a time for a date that is not now, you may prepend a date
+   * string + space in the ISO 8601 format (YYYY-MM-DD) to the value of $time and
+   * daylight savings will be taken in to effect.  That would look like this:
+   *
+   * @code
+   *   $this->localize('2015-01-22 09:02:00+0000', 'America/Los_Angeles');  
+   * @endcode
+   *
+   * @method localize
+   * @throws  \Exception If $time is improperly formatted, the string must
+   *   end in the ISO8601 time format with offset.
+   *
+   * @param  string $time
+   *   Must be in the format HH:MM:SS+-HHMM.
+   * @param  string|\DateTimeZone $timezone
+   *   The timezone name or object to localize into.  Defaults to 'UTC'.
+   *
+   * @return string
+   *   The localized time string.
+   */
+  public function localize($time, $timezone = 'UTC') {
+    if (!preg_match('/\d{2}:\d{2}:\d{2}[+-]\d{4}$/', $time)) {
+      throw new \Exception("Time must be in the format HH:MM:SS+-HHMM, e.g., 08:49:15-0800", 1);
+    }
+    if (is_string($timezone)) {
+      $timezone = new \DateTimeZone($timezone);
+    }
+    $time = new \DateTime($time);
+    $time->setTimeZone($timezone);
+    $local = $time->format('H:i:s');
+
+    return $this->parse($local)->join();
+  }
 }
