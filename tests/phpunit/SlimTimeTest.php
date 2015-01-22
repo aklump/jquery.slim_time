@@ -10,6 +10,64 @@ require_once dirname(__FILE__) . '/../../vendor/autoload.php';
 
 class SlimTimeTest extends \PHPUnit_Framework_TestCase {
 
+  public function testStandardizeAssumingPM() {
+    $obj = new SlimTime(array(
+      'assume' => 'pm',
+    ));
+    $this->assertSame('20:12:00+0000', $obj->standardize('8:12'));
+    $this->assertSame('20:12:00+0000', $obj->standardize('812'));
+  }
+
+  public function testLocalizeWithPSTDatePrepended() {
+    $obj = new SlimTime;
+    $this->assertSame('6:40am', $obj->localize('2015-01-15 14:40:00+0000', 'America/Los_Angeles'));
+    $this->assertSame('7:40am', $obj->localize('2015-08-15 14:40:00+0000', 'America/Los_Angeles'));
+  }
+
+  /**
+   * @expectedException Exception
+   */
+  public function testLocalizeBadFormatException() {
+    $obj = new SlimTime;
+    $obj->localize('breakfast');
+  }
+
+  public function testLocalizeSwitchingTimeZones() {
+    $obj = new SlimTime;
+    $tz = new \DateTimeZone('America/Los_Angeles');
+
+    // Assert that localizing a UTC date converts the time value.
+    $control = '6:40am';
+    if (($dst = (bool) date_create('now', $tz)->format('I'))) {
+      $control = '7:40am';
+    }
+    $this->assertSame($control, $obj->localize('14:40:00+0000', $tz));
+  }
+
+  public function testLocalizeSameTimeZone() {
+    $obj = new SlimTime;
+    $this->assertSame('8:04am', $obj->localize('08:04:00+0000', 'UTC'));
+
+    $tz = new \DateTimeZone('America/Los_Angeles');
+    $control_offset = new \DateTime('now', $tz);
+    $control_offset = $control_offset->format('O');    
+    $this->assertSame('8:04am', $obj->localize('08:04:00' . $control_offset, 'America/Los_Angeles'));
+  }
+
+  public function testStandardize() {
+    $obj = new SlimTime;
+
+    // Default is in UTC
+    $this->assertSame('08:04:00+0000', $obj->standardize('8:04am'));
+    $this->assertSame('08:04:00+0000', $obj->standardize('8:04am'), 'UTC');
+
+    // Check when in LA tz.
+    $tz = new \DateTimeZone('America/Los_Angeles');
+    $control_offset = new \DateTime('now', $tz);
+    $control_offset = $control_offset->format('O');
+    $this->assertSame('08:04:00' . $control_offset, $obj->standardize('8:04am', $tz)); 
+  }
+
   public function testIntegarExpansion12HourDELETE() {
     $this->assertSlimTimePass('6:00pm', '6p');
     $this->assertSlimTimePass('6:00am', 6);
