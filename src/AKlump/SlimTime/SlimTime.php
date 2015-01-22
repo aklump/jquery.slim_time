@@ -174,6 +174,30 @@ class SlimTime {
   }
 
   /**
+   * Construct a DateTime object using the parse method.
+   *
+   * A convenience so that you don't have to parse your time, and so that you
+   * can send a string as the timezone name.
+   *
+   * @method getDateTime
+   *
+   * @param  string $time Any string that passes for self::parse
+   * @param  string|\DateTimeZeon $timezone
+   *
+   * @return \DateTime
+   *
+   * @see  self::parse().
+   */
+  public function getDateTime($time, $timezone = 'UTC') {
+    if (is_string($timezone)) {
+      $timezone = new \DateTimeZone($timezone);
+    }
+    $time = $this->parse($time)->join();
+    
+    return new \DateTime($time, $timezone);  
+  }
+
+  /**
    * Standardizes the time format.
    *
    * @method standardize
@@ -189,13 +213,7 @@ class SlimTime {
    *   - ISO8601 HH:MM:SSO, e.g., 07:45:15-0800.
    */
   public function standardize($time, $timezone = 'UTC') {
-    if (is_string($timezone)) {
-      $timezone = new \DateTimeZone($timezone);
-    }
-    $time = $this->parse($time)->join();
-    $time = new \DateTime($time, $timezone);
-
-    return $time->format('H:i:sO');
+    return $this->getDateTime($time, $timezone)->format('H:i:sO');
   }
 
   /**
