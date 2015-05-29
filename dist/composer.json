@@ -1,23 +1,28 @@
 {
-  "name": "aklump/jquery.slim_time",
-  "type": "library",
-  "description": "A minimal jquery time widget for textfields with server-side support.",
-  "keywords": ["widget", "time"],
-  "homepage": "http://www.intheloftstudios.com/packages/jquery/jquery.slim_time",
-  "license": "BSD-3-Clause",
-  "authors": [
-    {
-      "name": "Aaron Klump",
-      "email": "sourcecode@intheloftstudios.com",
-      "homepage": "http://www.intheloftstudios.com",
-      "role": "Developer"
+    "name": "aklump/jquery.slim_time",
+    "version": "1.3.4",
+    "type": "library",
+    "description": "Slim Time: A minimal jquery time widget for textfields with server-side support.",
+    "keywords": [
+        "widget",
+        "time"
+    ],
+    "homepage": "http://www.intheloftstudios.com/packages/jquery/jquery.slim_time",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Aaron Klump",
+            "email": "sourcecode@intheloftstudios.com",
+            "homepage": "http://www.intheloftstudios.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "AKlump\\": "src/"
+        }
     }
-  ],
-  "require": {
-    "php": ">=5.3.0"
-  },
-
-  "autoload": {
-    "psr-0": {"AKlump\\": "src/"}  
-  }
 }

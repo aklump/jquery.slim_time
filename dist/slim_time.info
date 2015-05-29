@@ -1,5 +1,5 @@
 name = "Slim Time"
 description = "A minimal jquery time widget for textfields with server-side support."
-homepage = http://www.intheloftstudios.com/packages/jquery/jquery.slim_time
-version = "1.3.3"
+homepage = "http://www.intheloftstudios.com/packages/jquery/jquery.slim_time"
+version = "1.3.4"
 author = Aaron Klump <sourcecode@intheloftstudios.com>
