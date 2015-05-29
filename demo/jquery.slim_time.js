@@ -1,5 +1,5 @@
 /**
- * Slim Time jQuery JavaScript Plugin v1.3.3
+ * Slim Time jQuery JavaScript Plugin v1.3.4
  * http://www.intheloftstudios.com/packages/jquery/jquery.slim_time
  *
  * A minimal jquery time widget for textfields with server-side support.
@@ -7,7 +7,7 @@
  * Copyright 2013, Aaron Klump
  * Dual licensed under the MIT or GPL Version 2 licenses.
  *
- * Date: Fri May 29 13:38:01 PDT 2015
+ * Date: Fri May 29 13:41:36 PDT 2015
  *
  * @license
  */
@@ -216,6 +216,6 @@ $.fn.slimTime.defaults = {
   "cssPrefix"         : "slim-time-"
 };
 
-$.fn.slimTime.version = function() { return '1.3.3'; };
+$.fn.slimTime.version = function() { return '1.3.4'; };
 
 })(jQuery, window, document);
