@@ -1,6 +1,6 @@
 {
     "name": "aklump/jquery.slim_time",
-    "version": "1.3.4",
+    "version": "1.3.6",
     "type": "library",
     "description": "Slim Time: A minimal jquery time widget for textfields with server-side support.",
     "keywords": [

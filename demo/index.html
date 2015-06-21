@@ -16,6 +16,9 @@
         "required":true,
         "default": 24
       });
+      $('#time3').slimTime({
+        "seconds":true
+      });
     });
   })(jQuery);
   </script>
@@ -60,6 +63,7 @@
       <li>Enter <em>99:78pm</em> and hit tab; throws an error.</li>
       <li>Enter <em>elephant</em> and hit tab; instant validation failure calls custom callback.</li>
       <li>Try entering <em>it is 4:55pm now</em> (the whole phrase).  This "fuzzy" behavior can be disabled in options.</li>
+      <li>Enter <em>6:15:23pm</em> and hit tab; replaced by 6:15pm (the <code>seconds</code> option is disabled, for more info see below).</li>
     </ol>
     
     <p><label for="time">What time?</label>
@@ -67,6 +71,7 @@
           <button>Ok</button></p>
 
     <h3>24-hour time</h3>
+    <p>Military time can be enabled by passing <code>{default:24}</code> in the options object.</p>
     <ol>
       <li>Repeat the steps above; this box has been configured as required and using 24-hour time.</li>
       <li>Leave it blank and then tab out of it: because it's been required, it will show an error if nothing is entered.</li>
@@ -75,6 +80,17 @@
 
     <p><label for="time">What time? (required field) *</label>
           <input type="text" name="time2" id="time2" />
+          <button>Ok</button></p>
+
+    <h3>Including seconds</h3>
+    <p>Allow the entry of seconds by passing <code>{seconds:true}</code> in the options object.</p>
+    <ol>
+      <li>Enter <em>6:15:23pm</em> and hit tab; nothing changes, seconds remain.</li>
+      <li>Enter <em>6:15pm</em> and hit tab; nothing changes, seconds are added.</li>
+    </ol>
+
+    <p><label for="time">What time?</label>
+          <input type="text" name="time3" id="time3" />
           <button>Ok</button></p>
 
     <h3>Server-Side</h3>

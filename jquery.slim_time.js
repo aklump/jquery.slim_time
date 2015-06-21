@@ -65,42 +65,62 @@ SlimTime.prototype.validate = function ($element) {
  *   - 2 string Suffix either am or pm.
  */
 SlimTime.prototype.parse = function (string) {
-  var parts;
+  var parts, hour, min, sec, suffix, suffixPresent, parsed, temp;
+
+  var regex = '(?:([0,1,2]?\\d+)\\:?(\\d{2})\\:?(\\d{2})|([0,1,2]?\\d+)\\:?(\\d{2})()|([0,1,2]?\\d+)()())(am|pm|a|p)?';
+
   if (this.options.colon === 'required') {
-    parts = string.match(/(?:(\d{1,2})\:(\d{2}?)|(\d+))(am|pm|a|p)?/);
-    if (!this.options.fuzzy) {
-      parts = string.match(/^(?:(\d{1,2})\:(\d{2}?)|(\d+))(am|pm|a|p)?$/);
-    }
-  }
-  else {
-    parts = string.match(/(?:(\d{1,2})\:?(\d{2}?)|(\d+))(am|pm|a|p)?/);
-    if (!this.options.fuzzy) {
-      parts = string.match(/^(?:(\d{1,2})\:?(\d{2}?)|(\d+))(am|pm|a|p)?$/);
-    }
+    regex = regex.replace(/\\\:\?/g, '\\:');
   }
 
-  if (!parts || parts[3] > 24 || (typeof parts[1] === 'undefined' && typeof parts[3] === 'undefined')) {
+  if (!this.options.fuzzy) {
+    regex = '^' + regex + '$';
+  }
+
+  // If we can't match then we're done.
+  var match = new RegExp(regex);
+  if (!(parts = match.exec(string))) {
     return false;
   }
 
-  // Pull single hour in the correct spot.
-  if (typeof parts[1] === 'undefined') {
-    parts[1] = parts[3];
+  // If colon is required, make sure that we capture the same thing when
+  // no colons are present in the regex, otherwise the first capture
+  // did not acuratly capture the whole string correctly.
+  // This makes sure that 615 doesn't get mistaken as 6 and loose the mins.
+  if (this.options.colon === 'required' && parts[0].indexOf(':') === -1) {
+    var colonRegex = new RegExp(regex.replace(/\\\:/g, ''));
+    temp = colonRegex.exec(string);
+
+    if (temp[0] !== parts[0]) {
+      return false;
+    }
+  }  
+
+  // If we can't figure out the hour then we need to bail.
+  if (typeof (hour = parts[1]) === 'undefined' && typeof (hour = parts[4]) === 'undefined' && typeof (hour = parts[7]) === 'undefined') {
+    return false;
+  }
+  hour *= 1;
+
+  // Define the secs or 0.
+  if (typeof (min = parts[2]) === 'undefined' && typeof (min = parts[5]) === 'undefined' && typeof (min = parts[8]) === 'undefined') {
+    min = 0;
   }
 
-  if (typeof parts[2] === 'undefined') {
-    parts[2] = 0;
+  // Define the secs or 0.
+  if (typeof (sec = parts[3]) === 'undefined'  && typeof (sec = parts[6]) === 'undefined'  && typeof (sec = parts[9]) === 'undefined') {
+    sec = 0;
   }
 
-  var hour    = parts[1] * 1;
-  var min     = parts[2] * 1;
-  var suffix  = this.options.assume;
-
-  if (typeof parts[4] !== 'undefined') {
-    suffix = parts[4];
+  // Figure out the suffix if discovered.
+  suffix = this.options.assume;
+  suffixPresent = false;
+  if (typeof parts[10] !== 'undefined') {
+    suffixPresent = true;
+    suffix = parts[10];
     if (suffix === 'a' || suffix === 'p') {
       suffix += 'm';
-    }
+    }      
   }
 
   if (hour > 23 || min > 59) {
@@ -121,7 +141,7 @@ SlimTime.prototype.parse = function (string) {
 
   // Military
   if (this.options.default === 24) {
-    if (hour === 12 && suffix === 'am' && typeof parts[4] !== 'undefined') {
+    if (hour === 12 && suffix === 'am' && suffixPresent) {
       hour = 0;
     }
     else if (hour < 12 && suffix === 'pm') {
@@ -134,14 +154,16 @@ SlimTime.prototype.parse = function (string) {
     }    
   }
 
-  if (min === 0) {
-    min = '00';
-  }
-  else if (min < 10) {
-    min = '0' + min;
+  hour = hour.toString();
+  min  = min === 0 ? '00' : (min < 10 ? min = '0' + (min * 1) : min.toString());
+  sec  = sec === 0 ? '00' : (sec < 10 ? sec = '0' + (sec * 1) : sec.toString());
+
+  parsed = [hour, min, suffix];
+  if (this.options.seconds) {
+    parsed.push(sec);
   }
 
-  return [hour, min, suffix];
+  return parsed;
 };
 
 /**
@@ -155,7 +177,21 @@ SlimTime.prototype.parse = function (string) {
  */
 SlimTime.prototype.join = function (parsed) {
   var colon = this.options.colon === 'none' ? '' : ':';
-  return parsed && parsed.length === 3 ? parsed[0] + colon + parsed[1] + parsed[2] : '';
+  var c;
+  if (typeof parsed === 'undefined' || !(c = parsed.length) || c < 3 || c > 4) {
+    return '';
+  }
+
+  var joined = parsed.slice(0,2);
+  if (c === 4) {
+    joined.push(parsed[3]);
+  }
+
+  return joined.join(colon) + parsed[2];
+
+
+  // var colon = this.options.colon === 'none' ? '' : ':';
+  // return parsed && parsed.length === 3 ? parsed[0] + colon + parsed[1] + parsed[2] : '';
 };
 
 SlimTime.prototype.init = function () {
@@ -194,10 +230,19 @@ $.fn.slimTime.defaults = {
   // When suffix is missing and time is < 13 assume the following.
   "assume"    : "am",
 
-  // Define the colon handling: optional, none, required.  When colon is 
-  // required, 615 is not a valid input, when it is optional 615 is valid and
-  // the output will be 6:15, when it is none, 615 is valid and the output
-  // is 615.
+  // Should we support seconds; set to false and seconds will be ignored.
+  "seconds"   : false,
+
+  // Define the colon handler for output: optional, none, required.  When colon
+  // is required, 6:15 is valid input but not 615, when it is optional 615 and
+  // 6:15 are valid and the output includes colon, when it is none, 615 and 6:15
+  // are valid input and the output does not include the colon.
+  
+  // | option value | valid input | output format |
+  // |--------------|-------------|---------------|
+  // | none         | 6:15 or 615 | 615am         |
+  // | optional     | 6:15 or 615 | 6:15am        |
+  // | required     | 6:15        | 6:15am        |
   "colon"     : "optional",
 
   // Callback for when the time passes validation.
