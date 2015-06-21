@@ -42,7 +42,7 @@ namespace AKlump\SlimTime;
 class SlimTime {
 
   public $options;
-  public $parsed = array();
+  public $parsed      = array();
   protected $original = '';
 
   public function __construct($options = array()) {
@@ -52,9 +52,17 @@ class SlimTime {
       'required' => FALSE,
       'default' => 12,
       'assume' => 'am',
+      'seconds' => FALSE,
       'colon' => 'optional',
     );
     $this->options = (object) $this->options;
+    
+    // Option validation.
+    foreach (array('fuzzy', 'required', 'seconds') as $option) {
+      if (!is_bool($this->options->{$option})) {
+        throw new \InvalidArgumentException("Option \"$option\" must be boolean.");
+      }
+    }
   }
 
   /**
@@ -77,47 +85,69 @@ class SlimTime {
    */
   public function parse($string) {
     $this->original = $string;
-    $this->parsed = array();
+    $this->parsed   = array();
+    
+    // Build up our regex that is used to parse the incoming string.
+    $regex = '(?:([0,1,2]?\d+)\:?(\d{2})\:?(\d{2})|([0,1,2]?\d+)\:?(\d{2})()|([0,1,2]?\d+)()())(am|pm|a|p)?';
 
     if ($this->options->colon === 'required') {
-      $regex = '(?:(\d{1,2})\:(\d{2}?)|(\d+))(am|pm|a|p)?';
-      if (!$this->options->fuzzy) {
-        $regex = "^{$regex}$";
-      }
-    }
-    else {
-      $regex = '(?:(\d{1,2})\:?(\d{2}?)|(\d+))(am|pm|a|p)?';
-      if (!$this->options->fuzzy) {
-        $regex = "^{$regex}$";
-      }      
+      $regex = str_replace('\:?', '\:', $regex);
     }
 
-    if (!preg_match("/{$regex}/", $string, $parts)
-      || (isset($parts[3]) && $parts[3] > 24)
-      || (self::undefined($parts[1]) && self::undefined($parts[3]))) {
+    if (!$this->options->fuzzy) {
+      $regex = "^{$regex}$";
+    }
+
+    // If we can't match then we're done.
+    if (!preg_match("/{$regex}/", $string, $parts)) {
       return $this;
     }
+    $parts = array_pad($parts, 11, NULL);
 
-    // Pull single hour in the correct spot.
-    if (self::undefined($parts[1])) {
-      $parts[1] = $parts[3];
-    }    
+    // If colon is required, make sure that we capture the same thing when
+    // no colons are present in the regex, otherwise the first capture
+    // did not acuratly capture the whole string correctly.
+    // This makes sure that 615 doesn't get mistaken as 6 and loose the mins.
+    if ($this->options->colon === 'required' && !strpos($parts[0], ':')) {
+      $colonRegex = str_replace('\:', '', $regex);
+      preg_match("/{$colonRegex}/", $string, $temp);
+      if ($temp[0] !== $parts[0]) {
+        return $this;
+      }
+    }
+    
+    // If we can't figure out the hour then we need to bail.
+    if (self::undefined($hour = $parts[1])
+      && self::undefined($hour = $parts[4])
+      && self::undefined($hour = $parts[7])) {
+      return $this;
+    }
+    $hour *= 1;
 
-    if (self::undefined($parts[2])) {
-      $parts[2] = 0;
+    // Define the secs or 0.
+    if (self::undefined($min = $parts[2])
+      && self::undefined($min = $parts[5])
+      && self::undefined($min = $parts[8])) {
+      $min = 0;
     }
 
-    $hour   = $parts[1] * 1;
-    $min    = $parts[2] * 1;
-    $suffix = $this->options->assume;
+    // Define the secs or 0.
+    if (self::undefined($sec = $parts[3])
+      && self::undefined($sec = $parts[6])
+      && self::undefined($sec = $parts[9])) {
+      $sec = 0;
+    }
 
-    if (isset($parts[4])) {
-      $suffix = $parts[4];
+    // Figure out the suffix if discovered.
+    $suffix = $this->options->assume;
+    $suffixPresent = FALSE;
+    if (isset($parts[10])) {
+      $suffixPresent = TRUE;
+      $suffix = $parts[10];
       if ($suffix === 'a' || $suffix === 'p') {
-        $suffix .='m';
+        $suffix .= 'm';
       }      
     }
-
     if ($hour > 23 || $min > 59) {
       return $this;
     }
@@ -136,10 +166,10 @@ class SlimTime {
 
     // Military
     if ($this->options->default === 24) {
-      if ($hour === 12 && $suffix === 'am' && isset($parts[4])) {
+      if ($hour === 12 && $suffix === 'am' && $suffixPresent) {
         $hour = 0;
       }
-      else if ($hour < 12 && $suffix === 'pm') {
+      elseif ($hour < 12 && $suffix === 'pm') {
         $hour += 12;
       }
       $suffix = '';
@@ -149,14 +179,14 @@ class SlimTime {
       }
     }
 
-    if ($min === 0) {
-      $min = '00';
-    }
-    elseif ($min < 10) {
-      $min = "0{$min}";
-    }
+    $hour = (string) $hour;
+    $min  = $min == 0 ? '00' : ($min < 10 ? $min = '0' . (int) $min : (string) $min);
+    $sec  = $sec == 0 ? '00' : ($sec < 10 ? $sec = '0' . (int) $sec : (string) $sec);
 
     $this->parsed = array($hour, $min, $suffix);
+    if ($this->options->seconds) {
+      $this->parsed[] = $sec;
+    }
 
     return $this;
   }
@@ -167,7 +197,7 @@ class SlimTime {
     }
     $this->parse($value);
 
-    return count($this->parsed) === 3;
+    return $this->options->seconds ? count($this->parsed) === 4 : count($this->parsed) === 3;
   }
 
   /**
@@ -177,7 +207,16 @@ class SlimTime {
    */
   public function join() {
     $colon = $this->options->colon === 'none' ? '' : ':';
-    return count($this->parsed) === 3 ? $this->parsed[0] . $colon . $this->parsed[1] . $this->parsed[2] : $this->original;
+    if (!($c = count($this->parsed)) || $c < 3 || $c > 4) {
+      return $this->original;
+    }
+
+    $joined = array_slice($this->parsed, 0, 2);
+    if ($c === 4) {
+      $joined[] = $this->parsed[3];
+    }
+
+    return implode($colon, $joined) . $this->parsed[2];
   }
 
   /**
