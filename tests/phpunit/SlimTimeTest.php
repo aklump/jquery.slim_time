@@ -266,7 +266,7 @@ class SlimTimeTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testFailsOutOfRangeHour() {
-    $this->assertSlimTimePass('3:00am', '34:00am');
+    $this->assertSlimTimeFail('34:00am');
   }
 
   public function testFailsWhenFuzzyIsFalse() {
