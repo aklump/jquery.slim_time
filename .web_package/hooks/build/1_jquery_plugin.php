@@ -63,6 +63,7 @@ js_replace_version_function($source, $new_version);
 // Save the new version of the file
 if (file_put_contents($source_file, $source)) {
   echo "$source_file has been updated.";
+  sleep(1);
 }
 else {
   echo "Error updating $source_file";
