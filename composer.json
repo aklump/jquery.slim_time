@@ -1,4 +1,5 @@
 {
+    "license": "BSD-3-Clause",
     "name": "aklump/jquery.slim_time",
     "version": "1.4",
     "type": "library",
@@ -8,7 +9,6 @@
         "time"
     ],
     "homepage": "http://www.intheloftstudios.com/packages/jquery/jquery.slim_time",
-    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Aaron Klump",
